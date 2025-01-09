@@ -12,6 +12,24 @@ import { Duration, DurationLike, DurationUnits } from "./duration";
 import { Interval } from "./interval";
 import { Zone } from "./zone";
 
+/**
+ * Opaque class created by {@link DateTime.buildFormatParser},
+ * for use with {@link DateTime.fromFormatParser}.
+ *
+ * This class is described here only so that TypeScript understands
+ * that it is a class of its own. It should be considered private,
+ * with breaking changes in minor and patch updates.
+ */
+export class TokenParser {
+    constructor(locale: string, format: string);
+
+    explainFromTokens(input: string): ExplainedFormat;
+
+    get isValid(): boolean;
+
+    get invalidReason(): string | null;
+}
+
 export type DateTimeUnit = "year" | "quarter" | "month" | "week" | "day" | "hour" | "minute" | "second" | "millisecond";
 export type ToRelativeUnit = "years" | "quarters" | "months" | "weeks" | "days" | "hours" | "minutes" | "seconds";
 
@@ -1615,6 +1633,31 @@ export class DateTime<IsValid extends boolean = DefaultValidity> {
      * @deprecated use fromFormatExplain instead
      */
     static fromStringExplain(text: string, fmt: string, options?: DateTimeOptions): ExplainedFormat;
+
+    /**
+     * Build a parser for `fmt` using the given locale. This parser can be passed
+     * to {@link DateTime.fromFormatParser} to a parse a date in this format. This
+     * can be used to optimize cases where many dates need to be parsed in a
+     * specific format.
+     *
+     * @param fmt - the format the string is expected to be in (see
+     * [table of tokens](https://moment.github.io/luxon/#/parsing?id=table-of-tokens))
+     * @param options - options used to set locale and numberingSystem
+     * for parser
+     * @returns opaque object to be used
+     */
+    static buildFormatParser(fmt: string, options?: Pick<DateTimeOptions, 'locale' | 'numberingSystem'>): TokenParser;
+
+    /**
+     * Create a DateTime from an input string and format parser.
+     *
+     * The format parser must have been created with the same locale as this call.
+     *
+     * @param text - the string to parse
+     * @param formatParser - parser from {@link DateTime.buildFormatParser}
+     * @param opts - options taken by {@link DateTime.fromFormat}
+     */
+    static fromFormatParser(text: string, formatParser: TokenParser, opts?: DateTimeOptions): DateTimeMaybeValid;
 
     // FORMAT PRESETS
 

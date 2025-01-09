@@ -241,6 +241,11 @@ if (DateTime.isDateTime(anything)) {
 
 const { input, result, zone } = DateTime.fromFormatExplain("Aug 6 1982", "MMMM d yyyy");
 
+const tokenParser = DateTime.buildFormatParser('d', {locale: 'en-GB'});
+DateTime.fromFormatParser('3', tokenParser, {locale: 'en-GB'}); // $ExpectType DateTime<true> | DateTime<false>
+// @ts-expect-error
+DateTime.fromFormatParser('3', 'd', {locale: 'en-GB'});
+
 const invalidDateTime = DateTime.invalid("some reason", "some explanation");
 invalidDateTime.invalidReason; // $ExpectType string
 invalidDateTime.invalidExplanation; // $ExpectType string | null
